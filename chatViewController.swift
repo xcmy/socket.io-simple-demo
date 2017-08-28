@@ -14,6 +14,8 @@ class chatViewController: UIViewController {
     
     var tf = UITextField()
     var socket:SocketIOClient? = nil
+    var tv = UITextView()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -36,7 +38,7 @@ class chatViewController: UIViewController {
         
         self.view.backgroundColor = .white
         
-        tf = UITextField.init(frame: CGRect(x: 20, y: 200, width: 300, height: 50))
+        tf = UITextField.init(frame: CGRect(x: 20, y: 150, width: 300, height: 50))
         tf.borderStyle = .line
         tf.textColor = .black
         tf.font = UIFont.systemFont(ofSize: 15)
@@ -46,17 +48,26 @@ class chatViewController: UIViewController {
         btn.backgroundColor = UIColor.darkGray
         btn.setTitle("send", for: .normal)
         btn.setTitleColor(.white, for: .normal)
-        btn.frame = CGRect(x: 20, y:270 , width: 300, height: 50)
+        btn.frame = CGRect(x: 20, y:240 , width: 300, height: 50)
         btn.addTarget(self, action: #selector(click), for: .touchUpInside)
         self.view.addSubview(btn)
         
+        tv = UITextView.init(frame: CGRect(x: 20, y: 320, width: 300, height: 230))
+        tv.layer.borderColor = UIColor.black.cgColor
+        tv.layer.borderWidth = 1
+        self.view.addSubview(tv)
         
+        
+        socket?.on("app", callback: { (data, ack) in
+            let aa = Array(data)
+            self.tv.text = self.tv.text+"\n"+String(describing: aa[0])
+        })
         // Do any additional setup after loading the view.
     }
     
     @objc func click() {
-        print("\(String(describing: tf.text!))")
-        socket!.emit("chat message", String(describing: tf.text!))
+//        print("\(String(describing: tf.text!))")
+        socket!.emit("app", String(describing: tf.text!))
     }
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()

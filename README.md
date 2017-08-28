@@ -184,3 +184,48 @@ class chatViewController: UIViewController {
     
 }
 ```
+
+
+## 扩展
+
+在这里我们创建两个客户端，一个浏览器客户端，一个App客户端，均接入`socket.io`,我们创建两个事件`web`和`app`，将`web`发送到服务器的消息返回给`app`，将`app`发送到服务器的消息返回给`web`,这样就实现了一个简单的用户间对话。
+
+在服务端添加消息传递：
+```js
+io.on("connection",function (socket) {
+    console.log("a user connected");
+
+    socket.on('web', function(msg){
+        console.log('web-message: ' + msg);
+        io.emit("app",msg)
+
+    });
+    socket.on('app', function(msg){
+        console.log('app-message: ' + msg);
+        io.emit("web",msg)
+    });
+
+    socket.on("disconnect",function () {
+        console.log("user disconnect");
+    })
+});
+```
+
+在客户端文件中分别添加事件监听：
+
+在`index.html`中添加：
+```html
+socket.on('web', function(msg){
+    $('#messages').append($('<li>').text(msg));
+});
+```
+
+在chatViewController中添加：
+```swift
+socket?.on("app", callback: { (data, ack) in
+    let aa = Array(data)
+    self.tv.text = self.tv.text+"\n"+String(describing: aa[0])
+})
+```
+
+然后分别重启服务端和客户端就可实现浏览器和app间的简单对话。(具体见demo)
